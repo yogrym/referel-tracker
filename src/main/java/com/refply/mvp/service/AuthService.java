@@ -90,4 +90,16 @@ public class AuthService {
         return SignupResult.SUCCESS;
     }
 
+
+    public ConsumerEntity findCsmByEmail(ConsumerSignUpDto data) {
+        Optional <ConsumerEntity> tempConsumer = csmRepo.findByEmail(data.getEmail());
+        ConsumerEntity consumer = tempConsumer.get();
+        if(tempConsumer.isEmpty()){
+           
+            return consumer;
+        } 
+        return consumer;
+    }
+    
+
 }

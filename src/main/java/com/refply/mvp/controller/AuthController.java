@@ -63,11 +63,7 @@ public class AuthController {
         SignupResult result =  userService.consumerSignupService(data);
 
         switch (result){
-            case SUCCESS : 
-            
-            
-           
-
+            case SUCCESS :
            ConsumerEntity consumerEntity = userService.findCsmByEmail(data); /*this function finds and return the 
            consumerEntity form the database  */ 
 
