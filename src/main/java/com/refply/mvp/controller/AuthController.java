@@ -38,7 +38,7 @@ public class AuthController {
     @Autowired
     private AuthenticationManager authenticationManager;
 
-    @PostMapping("/loginn")
+    @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDataEntity request) {
         try {
             authenticationManager.authenticate(
