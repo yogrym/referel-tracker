@@ -38,7 +38,7 @@ public class AuthController {
     @Autowired
     private AuthenticationManager authenticationManager;
 
-    @PostMapping("/login")
+    @PostMapping("/loginn")
     public ResponseEntity<?> login(@RequestBody LoginDataEntity request) {
         try {
             authenticationManager.authenticate(
@@ -50,35 +50,36 @@ public class AuthController {
             String refreshToken = jwtUtil.generateRefreshToken(user.get());
             return ResponseEntity
                     .ok(Map.of("message", "Login successful", "token",
-                     token, "refreshToken", refreshToken, "profile" , user.get().getIsProfileComplete()));
+                            token, "refreshToken", refreshToken, "profile", user.get().getIsProfileComplete()));
 
         } catch (AuthenticationException e) {
             return ResponseEntity.status(401).body(Map.of("message", "Invalid email or password"));
         }
     }
 
-
     @PostMapping("/csm-signup")
-    public ResponseEntity<?> csmSignup(@RequestBody ConsumerSignUpDto data){
-        SignupResult result =  userService.consumerSignupService(data);
+    public ResponseEntity<?> csmSignup(@RequestBody ConsumerSignUpDto data) {
+        SignupResult result = userService.consumerSignupService(data);
 
-        switch (result){
-            case SUCCESS :
-           ConsumerEntity consumerEntity = userService.findCsmByEmail(data); /*this function finds and return the 
-           consumerEntity form the database  */ 
+        switch (result) {
+            case SUCCESS:
+                ConsumerEntity consumerEntity = userService.findCsmByEmail(data); /*
+                                                                                   * this function finds and return the
+                                                                                   * consumerEntity form the database
+                                                                                   */
 
-            String token = jwtUtil.generateCsmToken(consumerEntity);
-            String refreshToken = jwtUtil.generateCsmRefreshToken(consumerEntity);
+                String token = jwtUtil.generateCsmToken(consumerEntity);
+                String refreshToken = jwtUtil.generateCsmRefreshToken(consumerEntity);
 
-               return ResponseEntity.ok(Map.of("message", "user signed up","idToken :",token,"refereshToken:",refreshToken));
+                return ResponseEntity
+                        .ok(Map.of("message", "user signed up", "idToken :", token, "refereshToken:", refreshToken));
             case USER_ALREADY_EXISTS:
                 return ResponseEntity.status(409).body(Map.of("message", "User already exists"));
             default:
                 return ResponseEntity.internalServerError().body(Map.of("message", "Unknown error"));
         }
-        
-        }
-    
+
+    }
 
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody UserEntity userEntity) {
