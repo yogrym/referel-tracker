@@ -1,0 +1,17 @@
+# ──────────────────────────────────────────────
+# Copy this file to application.properties and
+# fill in your own values. Never commit the real
+# application.properties — it is in .gitignore.
+# ──────────────────────────────────────────────
+
+spring.application.name=affiliate_system
+
+# ── Database ───────────────────────────────────
+spring.datasource.url=jdbc:postgresql://localhost:5432/affiliate_system
+spring.datasource.username=YOUR_DB_USERNAME
+spring.datasource.password=YOUR_DB_PASSWORD
+
+# ── JPA / Hibernate ────────────────────────────
+# Options: validate | update | create | create-drop
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=false
