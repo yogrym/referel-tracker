@@ -17,10 +17,12 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -42,17 +44,21 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
+    @Builder.Default
     private Role role = Role.USER;
 
     @Column(name = "subscription_type")
     private subscriptionType subscriptionType;
 
     @Column(name = "onboarding_status")
+    @Builder.Default
     private Boolean onboardingStatus = false;
 
     @Column(name = "enabled", nullable = false)
+    @Builder.Default
     private Boolean enabled = true;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Builder.Default
     private List<BusinessOnboarding> businessOnboardings = new ArrayList<>();
 }
