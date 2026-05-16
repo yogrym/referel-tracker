@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.Map;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,13 +35,14 @@ public ResponseEntity<RegisterRespons> registerUser(@Valid @RequestBody Register
 
 
 
-    @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto request) {
+  @PostMapping("/login")
+public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto request) {
+    LoginResponseDto response = authService.loginUser(request);
 
-        return ResponseEntity.ok(
-                LoginResponseDto.builder()
-                        .status("success")
-                        .message("Login endpoint ready")
-                        .build());
+    if ("error".equals(response.getStatus())) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
+
+    return ResponseEntity.ok(response);
+}
 }

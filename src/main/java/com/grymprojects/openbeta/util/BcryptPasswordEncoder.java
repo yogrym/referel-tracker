@@ -15,4 +15,12 @@ public class BcryptPasswordEncoder {
 
         return ENCODER.encode(password);
     }
+
+    public static boolean matches(String password, String encodedPassword) {
+        if (password == null || password.isBlank() || encodedPassword == null || encodedPassword.isBlank()) {
+            return false;
+        }
+
+        return ENCODER.matches(password, encodedPassword);
+    }
 }
