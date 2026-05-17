@@ -20,7 +20,7 @@ public class AdminController {
     private final UserRepository userRepository;
 
     @GetMapping("/users")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'DEV')")
     public List<AdminUserResponseDto> getAllUsers() {
         return userRepository.findAll()
                 .stream()
