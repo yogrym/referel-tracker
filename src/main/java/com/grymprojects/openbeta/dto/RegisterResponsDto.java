@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RegisterRespons {
+public class RegisterResponsDto {
     private String status;
     private String message;
     private String isOnBoardComplete;

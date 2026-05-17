@@ -1,6 +1,10 @@
 package com.grymprojects.openbeta.model;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import com.grymprojects.openbeta.enums.Role;
 import com.grymprojects.openbeta.enums.subscriptionType;
@@ -63,6 +67,14 @@ public class User {
     @Column(name = "enabled", nullable = false)
     @Builder.Default
     private Boolean enabled = true;
+
+    @Column(name = "created", updatable = false)
+    @CreationTimestamp
+    private Timestamp createdTime;
+    
+    @Column(name = "updated")
+    @UpdateTimestamp
+    private Timestamp updateTimestamp;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
