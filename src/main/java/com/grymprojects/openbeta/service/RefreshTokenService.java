@@ -11,7 +11,10 @@ import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.grymprojects.openbeta.Repository.ConsumerTokenRepository;
 import com.grymprojects.openbeta.Repository.RefreshTokenRepository;
+import com.grymprojects.openbeta.model.Consumer;
+import com.grymprojects.openbeta.model.ConsumerRefreshToken;
 import com.grymprojects.openbeta.model.RefreshToken;
 import com.grymprojects.openbeta.model.User;
 
@@ -22,12 +25,23 @@ import lombok.RequiredArgsConstructor;
 public class RefreshTokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;
+    private final ConsumerTokenRepository cnsmTokenRepo;
 
     @Transactional
     public void save(User user, String refreshToken, Jwt jwt) {
         refreshTokenRepository.save(RefreshToken.builder()
                 .tokenHash(hash(refreshToken))
                 .user(user)
+                .expiresAt(jwt.getExpiresAt())
+                .build());
+    }
+
+    //for consumer 
+     @Transactional
+    public void save(Consumer cnsm, String refreshToken, Jwt jwt) {
+        cnsmTokenRepo.save(ConsumerRefreshToken.builder()
+                .tokenHash(hash(refreshToken))
+                .cnsm(cnsm)
                 .expiresAt(jwt.getExpiresAt())
                 .build());
     }

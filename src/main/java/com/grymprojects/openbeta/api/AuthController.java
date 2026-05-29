@@ -5,6 +5,10 @@ import com.grymprojects.openbeta.dto.LoginResponseDto;
 import com.grymprojects.openbeta.dto.RefreshTokenRequestDto;
 import com.grymprojects.openbeta.dto.RegisterRequestDto;
 import com.grymprojects.openbeta.dto.RegisterResponsDto;
+import com.grymprojects.openbeta.dto.ConsumerLoginRequest;
+import com.grymprojects.openbeta.dto.ConsumerLoginRespons;
+import com.grymprojects.openbeta.dto.ConsumerRegisterRequest;
+import com.grymprojects.openbeta.dto.ConsumerRegisterRespons;
 import com.grymprojects.openbeta.service.AuthService;
 
 import jakarta.validation.Valid;
@@ -58,4 +62,27 @@ public class AuthController {
     public ResponseEntity<LoginResponseDto> logout(@Valid @RequestBody RefreshTokenRequestDto request) {
         return ResponseEntity.ok(authService.logout(request));
     }
+
+    @PostMapping("/consumer/register")
+    public ResponseEntity<ConsumerRegisterRespons> registerConsumer(@Valid @RequestBody ConsumerRegisterRequest request) {
+        ConsumerRegisterRespons response = authService.registerCnsm(request);
+
+        if ("error".equals(response.getStatus())) {
+            return ResponseEntity.badRequest().body(response);
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/consumer/login")
+    public ResponseEntity<ConsumerLoginRespons> loginConsumer(@Valid @RequestBody ConsumerLoginRequest request) {
+        ConsumerLoginRespons response = authService.LoginConsumer(request);
+
+        if ("error".equals(response.getStatus())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
 }

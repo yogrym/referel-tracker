@@ -25,12 +25,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Entity
 @Table(
-        name = "refresh_tokens",
+        name = "refresh_tokens_consumer",
         indexes = {
-                @Index(name = "idx_refresh_tokens_token_hash", columnList = "token_hash", unique = true),
-                @Index(name = "idx_refresh_tokens_user_id", columnList = "user_id")
+                @Index(name = "idx_consumer_refresh_tokens_token_hash", columnList = "token_hash", unique = true),
+                @Index(name = "idx_consumer_refresh_tokens_consumer_id", columnList = "consumer_id")
         })
-public class RefreshToken {
+public class ConsumerRefreshToken {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,8 +40,8 @@ public class RefreshToken {
     private String tokenHash;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = true)
-    private User user;
+    @JoinColumn(name = "consumer_id", nullable = true)
+    private Consumer cnsm;
 
 
     @Column(name = "expires_at", nullable = false)

@@ -5,14 +5,20 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtException;
 
+import com.grymprojects.openbeta.Repository.ConsumerRepository;
 import com.grymprojects.openbeta.Repository.UserRepository;
+import com.grymprojects.openbeta.dto.ConsumerLoginRequest;
+import com.grymprojects.openbeta.dto.ConsumerLoginRespons;
+import com.grymprojects.openbeta.dto.ConsumerRegisterRequest;
 import com.grymprojects.openbeta.dto.LoginRequestDto;
 import com.grymprojects.openbeta.dto.LoginResponseDto;
 import com.grymprojects.openbeta.dto.RefreshTokenRequestDto;
 import com.grymprojects.openbeta.dto.RegisterRequestDto;
+import com.grymprojects.openbeta.dto.ConsumerRegisterRespons;
 import com.grymprojects.openbeta.dto.RegisterResponsDto;
 import com.grymprojects.openbeta.model.RefreshToken;
 import com.grymprojects.openbeta.model.User;
+import com.grymprojects.openbeta.model.Consumer;
 import com.grymprojects.openbeta.util.BcryptPasswordEncoder;
 
 import lombok.RequiredArgsConstructor;
@@ -22,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 public class AuthService {
 
     private final UserRepository userRepo;
+    private final ConsumerRepository consumerRepo;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
 
@@ -121,5 +128,65 @@ public class AuthService {
                 .token(token)
                 .refreshToken(refreshToken)
                 .build();
+    }
+
+
+    //for consumer 
+     private ConsumerLoginRespons createTokenResponsConsumer(Consumer cnsm, String message) {
+
+        String token = jwtService.generateAccessTokenForConsumer(cnsm);
+        String refreshToken = jwtService.generateRefreshToken(cnsm);
+        Jwt refreshJwt = jwtService.decodeRefreshToken(refreshToken);
+        refreshTokenService.save(cnsm, refreshToken, refreshJwt);
+
+        return ConsumerLoginRespons.builder()
+                .status("success")
+                .message(message)
+                .token(token)
+                .refreshToken(refreshToken)
+                .build();
+    }
+
+
+
+
+
+    public ConsumerRegisterRespons registerCnsm(ConsumerRegisterRequest data) { 
+
+        if(consumerRepo.existsByEmail(data.getEmail())){
+            return new  ConsumerRegisterRespons("error",
+            "An account is already associated with this email or username. Please log in instead.");
+        }
+
+        Consumer registerConsumer = Consumer.builder()
+                  .email(data.getEmail())
+                  .password(BcryptPasswordEncoder.encodePassword(data.getPassword()))
+                  .mobile(data.getMobileNo())
+                  .build();
+
+
+       consumerRepo.save(registerConsumer);
+       return new ConsumerRegisterRespons("success","account created successfull");
+
+    }
+
+
+    public ConsumerLoginRespons LoginConsumer(ConsumerLoginRequest data) {
+        if(!consumerRepo.existsByEmail(data.getEmail())){
+             return new ConsumerLoginRespons("error","this email dose't exists",null,null);
+        }
+
+        Consumer filledConsumer = consumerRepo.findByEmail(data.getEmail());
+        
+
+        if(filledConsumer == null || !BcryptPasswordEncoder.matches(data.getPassword(), filledConsumer.getPassword())) {
+            return new ConsumerLoginRespons("error","invalid username or password",null,null);
+        }
+
+        return createTokenResponsConsumer(filledConsumer, "Login sucessfull");
+
+        
+
+
     }
 }

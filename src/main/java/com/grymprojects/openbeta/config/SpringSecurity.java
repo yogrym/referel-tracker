@@ -25,7 +25,13 @@ public class SpringSecurity {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/register", "/auth/login", "/auth/refresh", "/auth/logout").permitAll()
+                        .requestMatchers(
+                                "/auth/register",
+                                "/auth/login",
+                                "/auth/refresh",
+                                "/auth/logout",
+                                "/auth/consumer/register",
+                                "/auth/consumer/login").permitAll()
                         .requestMatchers("/admin/**").hasAnyRole("ADMIN", "DEV")
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(

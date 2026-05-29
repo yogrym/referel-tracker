@@ -15,6 +15,7 @@ import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.stereotype.Service;
 
+import com.grymprojects.openbeta.model.Consumer;
 import com.grymprojects.openbeta.model.User;
 
 @Service
@@ -57,6 +58,25 @@ public class JwtService {
         return jwt;
     }
 
+// for cunsumer 
+    public String generateAccessTokenForConsumer(Consumer cnsm) {
+        return generateTokenForConsumer(cnsm, ACCESS_TOKEN_TYPE, accessTokenExpirationMs);
+    }
+
+    public String generateRefreshToken(Consumer cnsm) {
+        return generateTokenForConsumer(cnsm, REFRESH_TOKEN_TYPE, refreshTokenExpirationMs);
+    }
+
+    public Jwt validateRefreshTokenForConsumer(String refreshToken) {
+        Jwt jwt = jwtDecoder.decode(refreshToken);
+
+        if (!REFRESH_TOKEN_TYPE.equals(jwt.getClaimAsString("type"))) {
+            throw new JwtException("Invalid refresh token");
+        }
+
+        return jwt;
+    }
+
     public Jwt decodeRefreshToken(String refreshToken) {
         return validateRefreshToken(refreshToken);
     }
@@ -71,6 +91,26 @@ public class JwtService {
                 .expiresAt(now.plusMillis(expirationMs))
                 .claim("email", user.getEmail())
                 .claim("role", user.getRole().name())
+                .claim("type", tokenType)
+                .build();
+
+        JwsHeader header = JwsHeader.with(MacAlgorithm.HS256).build();
+
+        return jwtEncoder.encode(JwtEncoderParameters.from(header, claims)).getTokenValue();
+    }
+
+
+   //for consumer 
+    private String generateTokenForConsumer(Consumer cnsm, String tokenType, long expirationMs) {
+        Instant now = Instant.now();
+        JwtClaimsSet claims = JwtClaimsSet.builder()
+                .issuer("affiliate-system")
+                .subject(cnsm.getEmail())
+                .id(UUID.randomUUID().toString())
+                .issuedAt(now)
+                .expiresAt(now.plusMillis(expirationMs))
+                .claim("email", cnsm.getEmail())
+                .claim("role", cnsm.getRole().name())
                 .claim("type", tokenType)
                 .build();
 
