@@ -1,9 +1,8 @@
 package com.grymprojects.openbeta.dto;
 
-import org.springframework.stereotype.Component;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
@@ -20,8 +19,17 @@ public class ConsumerRegisterRequest {
     private String name;
 
     @NotBlank
+    @JsonProperty("mobile")
     private String mobileNo;
 
     @NotBlank
     private String adress;
+    
+    @NotBlank(message = "portal code is required")
+    @JsonProperty("portalcode")
+    private String businessPortalCode;
+    
+    @NotBlank
+    @JsonProperty("domainame")
+    private String businessDomainName;
 }

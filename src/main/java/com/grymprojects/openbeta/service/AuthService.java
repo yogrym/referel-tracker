@@ -5,6 +5,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtException;
 
+import com.grymprojects.openbeta.Repository.BusinessOnboardingRepository;
+import com.grymprojects.openbeta.Repository.ConsumerBusinessMembershipRepository;
 import com.grymprojects.openbeta.Repository.ConsumerRepository;
 import com.grymprojects.openbeta.Repository.UserRepository;
 import com.grymprojects.openbeta.dto.ConsumerLoginRequest;
@@ -16,10 +18,13 @@ import com.grymprojects.openbeta.dto.RefreshTokenRequestDto;
 import com.grymprojects.openbeta.dto.RegisterRequestDto;
 import com.grymprojects.openbeta.dto.ConsumerRegisterRespons;
 import com.grymprojects.openbeta.dto.RegisterResponsDto;
+import com.grymprojects.openbeta.model.BusinessOnboarding;
 import com.grymprojects.openbeta.model.RefreshToken;
 import com.grymprojects.openbeta.model.User;
 import com.grymprojects.openbeta.model.Consumer;
+import com.grymprojects.openbeta.model.ConsumerBusinessMembership;
 import com.grymprojects.openbeta.util.BcryptPasswordEncoder;
+import com.grymprojects.openbeta.util.DomainNameUtils;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,6 +34,8 @@ public class AuthService {
 
     private final UserRepository userRepo;
     private final ConsumerRepository consumerRepo;
+    private final BusinessOnboardingRepository businessOnboardingRepo;
+    private final ConsumerBusinessMembershipRepository consumerBusinessMembershipRepo;
     private final JwtService jwtService;
     private final RefreshTokenService refreshTokenService;
 
@@ -149,9 +156,14 @@ public class AuthService {
 
 
 
-
-
+    @Transactional
     public ConsumerRegisterRespons registerCnsm(ConsumerRegisterRequest data) { 
+
+        BusinessOnboarding business = findBusinessForConsumerSignup(data);
+
+        if (business == null) {
+            return new ConsumerRegisterRespons("error", "Invalid affiliate portal link");
+        }
 
         if(consumerRepo.existsByEmail(data.getEmail())){
             return new  ConsumerRegisterRespons("error",
@@ -166,8 +178,26 @@ public class AuthService {
 
 
        consumerRepo.save(registerConsumer);
+       consumerBusinessMembershipRepo.save(ConsumerBusinessMembership.builder()
+                  .consumer(registerConsumer)
+                  .business(business)
+                  .build());
        return new ConsumerRegisterRespons("success","account created successfull");
 
+    }
+
+    private BusinessOnboarding findBusinessForConsumerSignup(ConsumerRegisterRequest data) {
+        if (data.getBusinessPortalCode() != null && !data.getBusinessPortalCode().isBlank()) {
+            return businessOnboardingRepo.findByPortalCode(data.getBusinessPortalCode()).orElse(null);
+        }
+
+        String domainName = DomainNameUtils.normalize(data.getBusinessDomainName());
+
+        if (domainName == null) {
+            return null;
+        }
+
+        return businessOnboardingRepo.findByDomainName(domainName).orElse(null);
     }
 
 

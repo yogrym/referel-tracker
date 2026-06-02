@@ -1,6 +1,7 @@
 package com.grymprojects.openbeta.service;
 
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import com.grymprojects.openbeta.dto.OnboardRequest;
 import com.grymprojects.openbeta.dto.UsernameChangeWebhookDto;
 import com.grymprojects.openbeta.model.BusinessOnboarding;
 import com.grymprojects.openbeta.model.User;
+import com.grymprojects.openbeta.util.DomainNameUtils;
 
 import lombok.RequiredArgsConstructor;
 
@@ -49,6 +51,13 @@ public class GlobalService {
                     .body(Map.of("status", "error", "message", "GST number is already registered"));
         }
 
+        String domainName = DomainNameUtils.normalize(request.getWebAddress());
+
+        if (domainName != null && businessOnboardingRepository.existsByDomainName(domainName)) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("status", "error", "message", "Domain name is already registered"));
+        }
+
         BusinessOnboarding onboarding = new BusinessOnboarding();
         onboarding.setBusinessName(request.getBusinessName());
         onboarding.setBusinessEmail(request.getBusinessEmail());
@@ -57,6 +66,8 @@ public class GlobalService {
         onboarding.setState(request.getState());
         onboarding.setPincode(request.getPincode());
         onboarding.setWebAddress(request.getWebAddress());
+        onboarding.setDomainName(domainName);
+        onboarding.setPortalCode(generateUniquePortalCode());
         onboarding.setGstNumber(request.getGstNumber());
         onboarding.setBusinessRole(request.getBusinessRole());
         onboarding.setUser(user);
@@ -68,7 +79,18 @@ public class GlobalService {
 
         return ResponseEntity.ok(Map.of(
                 "status", "success",
-                "message", "Onboarding completed successfully"));
+                "message", "Onboarding completed successfully",
+                "portalCode", onboarding.getPortalCode()));
+    }
+
+    private String generateUniquePortalCode() {
+        String portalCode;
+
+        do {
+            portalCode = UUID.randomUUID().toString().replace("-", "");
+        } while (businessOnboardingRepository.existsByPortalCode(portalCode));
+
+        return portalCode;
     }
 
     public ResponseEntity<Map<String, String>> checkUsernameChange(UsernameChangeWebhookDto webhook) {

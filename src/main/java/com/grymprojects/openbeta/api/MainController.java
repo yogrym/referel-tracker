@@ -31,11 +31,10 @@ public class MainController {
         return globalService.completeOnboard(jwt.getSubject(), request);
     }
 
-    @PostMapping("/webhook/username-change")
-    public ResponseEntity<Map<String, String>> checkUsernameChange(
-            @Valid @RequestBody UsernameChangeWebhookDto webhook) {
-        return globalService.checkUsernameChange(webhook);
-    }
+
+    
+
+    
 
     
 }
